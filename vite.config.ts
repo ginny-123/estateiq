@@ -1,7 +1,10 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
-import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
+
+// Hosting metadata is only needed by the managed Sites deployment. Keep the
+// app buildable on GitHub/Vercel when that local-only file is not uploaded.
+const hostingConfig = { d1: null, r2: null };
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
