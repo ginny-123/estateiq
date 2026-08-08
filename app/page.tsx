@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 
-const defaults={price:325000,down:25,rate:6.75,term:30,rent:2700,tax:3600,hoa:180,vacancy:6,reserves:5,maintenance:5,management:8,years:10,appreciation:3,selling:6,capitalGains:20,marginal:24};
+const defaults={price:325000,down:25,rate:6.75,term:30,rent:2700,tax:3600,hoa:180,vacancy:6,reserves:5,maintenance:5,management:8,years:10,appreciation:3,selling:6,buildingBasis:80,recaptureRate:25,capitalGains:20,marginal:24};
 const money=(n:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n);
 const pct=(n:number)=>`${n.toFixed(1)}%`;
 
@@ -10,10 +10,10 @@ export default function Home(){
  const c=useMemo(()=>{const loan=v.price*(1-v.down/100),r=v.rate/1200,n=v.term*12;const payment=r?loan*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):loan/n;let balance=loan;const years=[];let totalCash=0;
   const annualRent=v.rent*12,vacancy=annualRent*v.vacancy/100,management=annualRent*v.management/100,operating=v.tax+v.hoa*12+annualRent*(v.reserves+v.maintenance)/100,noi=annualRent-vacancy-operating,debt=payment*12,cashFlow=noi-debt-management;
   let firstInterest=0,firstPrincipal=0;for(let m=0;m<12;m++){const interest=balance*r,principal=payment-interest;firstInterest+=interest;firstPrincipal+=principal;balance-=principal;}
-  const depreciation=v.price*.75/27.5,repsBenefit=(firstInterest+depreciation)*v.marginal/100,cashIn=v.price*v.down/100+v.price*.025;
+  const depreciation=v.price*(v.buildingBasis/100)/27.5,repsBenefit=(firstInterest+depreciation)*v.marginal/100,cashIn=v.price*v.down/100+v.price*.025;
   balance=loan;for(let year=1;year<=v.years;year++){let interest=0,principal=0;for(let m=0;m<12;m++){const mi=balance*r,mp=payment-mi;interest+=mi;principal+=mp;balance-=mp;}const value=v.price*Math.pow(1+v.appreciation/100,year);years.push({year,value,balance,interest,principal,cashFlow,taxBenefit:repsBenefit});totalCash+=cashFlow+repsBenefit;}
-  const end=years[years.length-1],saleCosts=end.value*v.selling/100,saleTaxes=Math.max(0,end.value-v.price)*v.capitalGains/100,netSale=end.value-end.balance-saleCosts-saleTaxes,totalProfit=netSale-cashIn+totalCash;
-  return{loan,payment,noi,debt,cashFlow,cashIn,cap:noi/v.price*100,coc:cashFlow*100/cashIn,dscr:noi/debt,interest:firstInterest,principal:firstPrincipal,depreciation,repsBenefit,years,equity:end.value-end.balance,saleCosts,saleTaxes,netSale,totalProfit,roi:totalProfit*100/cashIn};
+  const end=years[years.length-1],saleCosts=end.value*v.selling/100,accumulatedDep=depreciation*v.years,adjustedBasis=v.price-accumulatedDep,totalGain=Math.max(0,end.value-saleCosts-adjustedBasis),recaptureGain=Math.min(accumulatedDep,totalGain),capitalGain=Math.max(0,totalGain-recaptureGain),recaptureTax=recaptureGain*v.recaptureRate/100,capitalGainTax=capitalGain*v.capitalGains/100,saleTaxes=recaptureTax+capitalGainTax,netSale=end.value-end.balance-saleCosts-saleTaxes,totalProfit=netSale-cashIn+totalCash;
+  return{loan,payment,noi,debt,cashFlow,cashIn,cap:noi/v.price*100,coc:cashFlow*100/cashIn,dscr:noi/debt,interest:firstInterest,principal:firstPrincipal,depreciation,repsBenefit,years,equity:end.value-end.balance,saleCosts,saleTaxes,netSale,totalProfit,roi:totalProfit*100/cashIn,accumulatedDep,adjustedBasis,totalGain,recaptureGain,capitalGain,recaptureTax,capitalGainTax};
  },[v]);
  const verdict=c.coc>=6&&c.dscr>=1.2&&c.cap>=5.5?"Strong candidate":c.coc>=3?"Needs negotiation":"Pass for now";
  return <main><nav><div className="brand"><span>◒</span> EstateIQ</div><div className="navlinks"><a href="#analyze">Analyze</a><a href="#projection">Projection</a><button className="ghost" onClick={()=>setV(defaults)}>Reset model</button></div></nav>
