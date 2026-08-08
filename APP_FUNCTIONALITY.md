@@ -15,6 +15,7 @@ The app is an educational screening tool, not tax, legal, lending, or investment
 - Mortgage interest rate
 - Mortgage term in years
 - Monthly rent
+- Annual rent increase
 - Annual property taxes
 - Annual home insurance
 - Monthly HOA fees
@@ -161,7 +162,15 @@ The app displays a larger potential benefit based on mortgage interest plus depr
 
 ## Year-by-year projection
 
-For each year in the selected hold period, the app shows:
+For each year in the selected hold period, the app first increases monthly rent using the annual rent-increase assumption:
+
+```text
+Year N monthly rent = initial monthly rent × (1 + annual rent increase) ^ (N − 1)
+```
+
+The resulting rent is used to calculate that year's vacancy, operating expenses, NOI, debt service, cash flow, principal paydown, and allowed tax-equivalent benefit.
+
+The app shows:
 
 - Projected property value using annual appreciation
 - Remaining mortgage balance
