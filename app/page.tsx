@@ -140,7 +140,7 @@ export default function Home(){
   const roiLabel=v.exitStrategy==="1031"?"Economic ROI":"After-tax ROI";
   const openTab=(tab:MobileTab)=>{setMobileTab(tab);window.scrollTo({top:0,behavior:"smooth"});};
   return <main className={`mobile-tab-${mobileTab}`}>
-    <header className="app-header"><div><h1>EstateIQ</h1><p>Know the deal before you buy</p></div><span>{v.years}-YEAR HOLD</span></header>
+    <header className="app-header"><div className="brand"><img src="/logo-mark.svg" alt="EstateIQ" /><div><h1>EstateIQ</h1><p>Know the deal before you buy.</p></div></div><span>{v.years}-YEAR HOLD</span></header>
     <div className="sticky-summary"><b>{roiLabel}: {percent(c.headlineRoi)}</b><span>Cap {percent(c.capRate)}</span><span>CoC {percent(c.coc)}</span><span>IRR {percent(c.marketIrr)}</span></div>
     <section className="dashboard">
       <aside className="panel assumptions mobile-pane mobile-inputs"><h2>Assumptions</h2><p>Results update instantly.</p><div className="scenario-toggle">{(["Optimistic","Base","Conservative"] as ScenarioName[]).map(x=><button className={scenario===x?"active":""} onClick={()=>applyScenario(x)} key={x}>{x}</button>)}</div><div className="fields">
