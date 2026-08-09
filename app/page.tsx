@@ -30,7 +30,6 @@ function model(base:typeof defaults, vacancy=base.vacancy, maintenance=base.main
   const payment = monthlyRate
     ? loan * monthlyRate * Math.pow(1 + monthlyRate, loanMonths) / (Math.pow(1 + monthlyRate, loanMonths) - 1)
     : loan / loanMonths;
-  const rentGrowth = Math.pow(1 + base.rentIncrease / 100, 1 / 12) - 1;
   const priceGrowth = Math.pow(1 + base.appreciation / 100, 1 / 12) - 1;
   const stockMonthly = Math.pow(1 + base.stockReturn / 100, 1 / 12) - 1;
   const annualDepreciation = base.price * base.buildingBasis / 100 / 27.5;
@@ -42,7 +41,9 @@ function model(base:typeof defaults, vacancy=base.vacancy, maintenance=base.main
 
   for (let m=0; m<months; m++) {
     const year = Math.floor(m / 12) + 1;
-    const rent = base.rent * Math.pow(1 + rentGrowth, m);
+    // Rent steps up once per year (at the START of each new year), then holds flat for all 12
+    // months of that year — it does NOT compound month-to-month within a year.
+    const rent = base.rent * Math.pow(1 + base.rentIncrease / 100, Math.floor(m / 12));
     const vacancyCost = rent * vacancy / 100;
     const propertyTax = base.tax / 12;
     const insurance = base.insurance / 12;
